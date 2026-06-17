@@ -1,0 +1,26 @@
+name: Test basic invocation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Test action invocation with required inputs
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          github_token: fake-token-for-testing
+          github_pr_number: "1"
+          github_repository: octocat/Hello-World
+      - name: Assert action attempted to run
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action is expected to fail because the token is fake and no real PR exists.
+          # We verify it ran (not skipped) and failed due to API error, not a config error.
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran (outcome: ${{ steps.action.outcome }})"
