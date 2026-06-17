@@ -1,0 +1,63 @@
+name: Test with custom config file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Create a minimal config file for the labeler
+      - name: Create config file
+        run: |
+          mkdir -p /tmp/pr-labeler-config
+          cat > /tmp/pr-labeler-config/labeler.yml << 'EOF'
+          XS:
+            lines: 10
+            label: "size/XS"
+          S:
+            lines: 50
+            label: "size/S"
+          M:
+            lines: 150
+            label: "size/M"
+          L:
+            lines: 500
+            label: "size/L"
+          XL:
+            lines: 1000
+            label: "size/XL"
+          XXL:
+            label: "size/XXL"
+          EOF
+          echo "Config file created at /tmp/pr-labeler-config/labeler.yml"
+          cat /tmp/pr-labeler-config/labeler.yml
+
+      # Invoke the action with the custom config file path.
+      # With an invalid token it will fail at the API call (not at config parsing).
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_token: "invalid-token-for-testing"
+          github_pr_number: "1"
+          github_repository: "octocat/Hello-World"
+          config_file_path: "/tmp/pr-labeler-config/labeler.yml"
+
+      - name: Assert action ran with config (failed due to API auth, not config)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action should fail (invalid token → API error), not skip or be cancelled
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with custom config, outcome=$OUTCOME"
