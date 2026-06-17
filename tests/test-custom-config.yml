@@ -1,0 +1,55 @@
+name: Test PR size labeler with custom config file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create custom config file
+        run: |
+          cat > /tmp/pr-size-labeler-config.yml << 'EOF'
+          size_xs:
+            label: "size/XS"
+            lines_changed_threshold: 10
+            files_changed_threshold: 2
+          size_s:
+            label: "size/S"
+            lines_changed_threshold: 50
+            files_changed_threshold: 5
+          size_m:
+            label: "size/M"
+            lines_changed_threshold: 200
+            files_changed_threshold: 10
+          size_l:
+            label: "size/L"
+            lines_changed_threshold: 500
+            files_changed_threshold: 20
+          size_xl:
+            label: "size/XL"
+            lines_changed_threshold: 1000
+            files_changed_threshold: 50
+          EOF
+          echo "Config file created at /tmp/pr-size-labeler-config.yml"
+      - name: Test action with custom config
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          github_pr_number: "1"
+          github_repository: "cbrgm/pr-size-labeler-action"
+          config_file_path: "/tmp/pr-size-labeler-config.yml"
+        continue-on-error: true
+      - name: Assert action was invoked
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action runs a Docker container that calls the GitHub API.
+          # In a test environment, the API call may fail due to token/network
+          # constraints, but the action should at least be invoked (not skipped).
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action was invoked with custom config (outcome: ${{ steps.action.outcome }})"

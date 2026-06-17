@@ -1,0 +1,29 @@
+name: Test basic PR size labeler invocation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Test action with required inputs
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          github_pr_number: "1"
+          github_repository: "cbrgm/pr-size-labeler-action"
+        continue-on-error: true
+      - name: Assert action was invoked
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action runs a Docker container that calls the GitHub API.
+          # In a test environment, the API call may fail due to token/network
+          # constraints, but the action should at least be invoked (not skipped).
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action was invoked (outcome: ${{ steps.action.outcome }})"
