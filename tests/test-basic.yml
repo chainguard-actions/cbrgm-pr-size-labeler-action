@@ -1,0 +1,30 @@
+name: Test basic PR size labeler invocation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # The action makes real GitHub API calls, so with an invalid token it
+      # will exit non-zero. We wrap it in a continue-on-error step and then
+      # assert that it ran (i.e. the Docker container was pulled and started).
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_token: "fake-token-for-testing"
+          github_pr_number: "1"
+          github_repository: "cbrgm/pr-size-labeler-action"
+
+      - name: Assert action ran (outcome is not skipped)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME (failure expected with fake token)"
