@@ -1,0 +1,1 @@
+# cbrgm-pr-size-labeler-action
