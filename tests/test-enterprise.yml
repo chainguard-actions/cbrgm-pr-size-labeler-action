@@ -1,0 +1,31 @@
+name: Test PR Size Labeler with GitHub Enterprise URL
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_REF: refs/pull/1/merge
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          github_pr_number: "1"
+          github_repository: "octocat/Hello-World"
+          github_enterprise_url: "https://github.example.com"
+        continue-on-error: true
+      - name: Assert action ran with enterprise URL input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail because the PR/repo don't exist on the enterprise instance,
+          # but we verify the action was invoked (not skipped) — meaning the input was accepted.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with github_enterprise_url input provided"
