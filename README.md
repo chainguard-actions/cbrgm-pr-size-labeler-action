@@ -8,6 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
+| v1.3.10 | [`v1.3.10`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.3.10) | [`87f4b43`](https://github.com/cbrgm/pr-size-labeler-action/commit/87f4b43f2988ba7b3d5a2b05eea7005c35920dcd) |
 | v1.3.5 | [`v1.3.5`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.3.5) | [`aa10aba`](https://github.com/cbrgm/pr-size-labeler-action/commit/aa10abaa7d6a3aed6134ec65d910f4dc675de16c) |
 | v1.3.6 | [`v1.3.6`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.3.6) | [`58d8f50`](https://github.com/cbrgm/pr-size-labeler-action/commit/58d8f50823aeda7981d2652ae29ab353bfc5e745) |
 | v1.3.7 | [`v1.3.7`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.3.7) | [`12d72fb`](https://github.com/cbrgm/pr-size-labeler-action/commit/12d72fbe52a8f3675634c07671bade2c29fa1469) |
