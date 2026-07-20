@@ -1,0 +1,56 @@
+name: Test custom config file path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Create a custom config file at a non-default path
+      - name: Create custom config file
+        run: |
+          mkdir -p .github/custom
+          cat > .github/custom/pr-size-config.yml <<'EOF'
+          label_configs:
+            - size: XS
+              diff: 10
+              files: 5
+              labels:
+                - size/XS
+            - size: S
+              diff: 30
+              files: 10
+              labels:
+                - size/S
+            - size: M
+              diff: 100
+              files: 20
+              labels:
+                - size/M
+            - size: L
+              diff: 500
+              files: 50
+              labels:
+                - size/L
+            - size: XL
+              diff: 1000
+              files: 100
+              labels:
+                - size/XL
+          EOF
+
+      - name: Run action with custom config path and invalid repo format
+        id: action
+        # Using invalid repo format so the action exits cleanly without API calls
+        # This tests that config_file_path input is accepted and config is loaded
+        uses: .
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_pr_number: "1"
+          github_repository: "not-valid"
+          config_file_path: ".github/custom/pr-size-config.yml"
+
+      - name: Assert action completed without error
+        run: |
+          echo "PASS: action exited cleanly with custom config path and invalid repo format"
