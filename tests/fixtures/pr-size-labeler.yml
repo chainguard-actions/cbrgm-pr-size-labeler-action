@@ -1,0 +1,21 @@
+size_xs_label: "size/XS"
+size_xs_condition:
+  changed_lines_below: 10
+  changed_files_below: 3
+size_s_label: "size/S"
+size_s_condition:
+  changed_lines_below: 30
+  changed_files_below: 5
+size_m_label: "size/M"
+size_m_condition:
+  changed_lines_below: 100
+  changed_files_below: 10
+size_l_label: "size/L"
+size_l_condition:
+  changed_lines_below: 500
+  changed_files_below: 20
+size_xl_label: "size/XL"
+size_xl_condition:
+  changed_lines_below: 1000
+  changed_files_below: 50
+size_xxl_label: "size/XXL"
