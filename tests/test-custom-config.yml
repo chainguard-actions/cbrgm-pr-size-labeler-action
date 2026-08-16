@@ -1,55 +1,71 @@
-name: Test PR size labeler with custom config file
+name: Test custom config file path
 on:
   workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_EVENT_NAME: pull_request
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Create a custom config file for the labeler
       - name: Create custom config file
         run: |
-          cat > /tmp/pr-size-labeler-config.yml << 'EOF'
-          size_xs:
-            label: "size/XS"
-            lines_changed_threshold: 10
-            files_changed_threshold: 2
-          size_s:
-            label: "size/S"
-            lines_changed_threshold: 50
-            files_changed_threshold: 5
-          size_m:
-            label: "size/M"
-            lines_changed_threshold: 200
-            files_changed_threshold: 10
-          size_l:
-            label: "size/L"
-            lines_changed_threshold: 500
-            files_changed_threshold: 20
-          size_xl:
-            label: "size/XL"
-            lines_changed_threshold: 1000
-            files_changed_threshold: 50
+          mkdir -p "$GITHUB_WORKSPACE/.github"
+          cat > "$GITHUB_WORKSPACE/.github/pr-size-custom.yml" <<'EOF'
+          # Custom PR Size Labeler configuration
+          exclude_files:
+            - "*.md"
+            - "*.txt"
+          label_configs:
+            - size: xs
+              diff: 10
+              files: 1
+              labels: ["size/xs"]
+            - size: s
+              diff: 50
+              files: 5
+              labels: ["size/s"]
+            - size: m
+              diff: 200
+              files: 15
+              labels: ["size/m"]
+            - size: l
+              diff: 1000
+              files: 30
+              labels: ["size/l"]
+            - size: xl
+              diff: 5000
+              files: 100
+              labels: ["size/xl"]
+          added_lines_only: false
           EOF
-          echo "Config file created at /tmp/pr-size-labeler-config.yml"
-      - name: Test action with custom config
-        id: action
+          echo "Config file created:"
+          cat "$GITHUB_WORKSPACE/.github/pr-size-custom.yml"
+
+      # The action requires a real PR number. Since we don't have one in the
+      # test environment, we use PR #999999 which should not exist.
+      # We expect the action to fail (non-zero exit) because the PR doesn't exist.
+      # The key thing we're testing here is that the custom config_file_path input
+      # is accepted and the action starts up correctly.
+      - id: action
         uses: .
-        with:
-          github_token: ${{ github.token }}
-          github_pr_number: "1"
-          github_repository: "cbrgm/pr-size-labeler-action"
-          config_file_path: "/tmp/pr-size-labeler-config.yml"
         continue-on-error: true
-      - name: Assert action was invoked
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repository: ${{ github.repository }}
+          github_pr_number: "999999"
+          config_file_path: ".github/pr-size-custom.yml"
+
+      - name: Assert action ran with custom config
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action runs a Docker container that calls the GitHub API.
-          # In a test environment, the API call may fail due to token/network
-          # constraints, but the action should at least be invoked (not skipped).
-          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+          echo "outcome: $OUTCOME"
+          # The action should not be skipped - it should have run
+          if [ "$OUTCOME" = "skipped" ]; then
             echo "FAIL: action was skipped, expected it to run"
             exit 1
           fi
-          echo "PASS: action was invoked with custom config (outcome: ${{ steps.action.outcome }})"
+          # Whether it succeeded or failed, it ran - that's what we're testing
+          echo "PASS: action ran with custom config file path (outcome: $OUTCOME)"

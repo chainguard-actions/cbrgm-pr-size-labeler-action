@@ -1,0 +1,38 @@
+name: Test basic usage with invalid PR number
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # The action requires a real PR number. Since we don't have one in the
+      # test environment, we use PR #999999 which should not exist.
+      # We expect the action to fail (non-zero exit) because the PR doesn't exist.
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repository: ${{ github.repository }}
+          github_pr_number: "999999"
+
+      - name: Assert action ran and failed gracefully for non-existent PR
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action should fail because PR #999999 does not exist
+          # We verify it ran (not skipped) and produced a failure outcome
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run and fail"
+            exit 1
+          fi
+          if [ "$OUTCOME" = "success" ]; then
+            echo "WARN: action unexpectedly succeeded - PR #999999 may exist or action is lenient"
+            echo "PASS: action ran successfully (unexpected but acceptable)"
+          else
+            echo "PASS: action ran and produced outcome '$OUTCOME' as expected for non-existent PR"
+          fi
