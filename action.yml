@@ -22,7 +22,7 @@ inputs:
 
 runs:
   using: docker
-  image: 'docker://ghcr.io/cbrgm/pr-size-labeler-action@sha256:eee8dcd2a1ab1ab973c418f122131a956fbd3d3efe2e1e3d5a28e40eacc3b183' # v1
+  image: 'docker://ghcr.io/cbrgm/pr-size-labeler-action:v1@sha256:77ee5bf485d4e2aab13a5eb571117a60a0691983b2fb19d240ed137d2d055609'
   env:
     CONFIG_FILE_PATH: ${{ inputs.config_file_path }}
     GITHUB_EVENT_NAME: "pull_request"

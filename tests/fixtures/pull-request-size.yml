@@ -1,0 +1,40 @@
+# Configuration for PR Size Labeler - Test Fixture
+
+# List of files to exclude from size calculation
+exclude_files:
+  - "*.lock"
+  - "*.sum"
+
+# Configuration for labeling based on the size of the Pull Request
+label_configs:
+  # Configuration for 'extra small' PRs
+  - size: xs
+    diff: 25
+    files: 1
+    labels: ["size/xs"]
+
+  # Configuration for 'small' PRs
+  - size: s
+    diff: 150
+    files: 10
+    labels: ["size/s"]
+
+  # Configuration for 'medium' PRs
+  - size: m
+    diff: 600
+    files: 25
+    labels: ["size/m"]
+
+  # Configuration for 'large' PRs
+  - size: l
+    diff: 2500
+    files: 50
+    labels: ["size/l"]
+
+  # Configuration for 'extra large' PRs
+  - size: xl
+    diff: 5000
+    files: 100
+    labels: ["size/xl"]
+
+added_lines_only: false

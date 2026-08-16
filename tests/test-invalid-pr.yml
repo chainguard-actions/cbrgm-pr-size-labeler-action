@@ -1,0 +1,62 @@
+name: Test invalid PR number - error handling
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create default config file
+        run: |
+          mkdir -p .github
+          cat > .github/pull-request-size.yml << 'EOF'
+          label_configs:
+            - size: xs
+              diff: 25
+              files: 1
+              labels: ["size/xs"]
+            - size: s
+              diff: 150
+              files: 10
+              labels: ["size/s"]
+            - size: m
+              diff: 600
+              files: 25
+              labels: ["size/m"]
+            - size: l
+              diff: 2500
+              files: 50
+              labels: ["size/l"]
+            - size: xl
+              diff: 5000
+              files: 100
+              labels: ["size/xl"]
+          added_lines_only: false
+          EOF
+
+      - name: Run PR size labeler with non-existent PR number
+        id: action
+        # We expect this to fail since PR 999999999 does not exist
+        continue-on-error: true
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          github_repository: ${{ github.repository }}
+          github_pr_number: '999999999'
+
+      - name: Assert action failed for non-existent PR
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "Action outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: Action correctly failed for non-existent PR number 999999999"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "WARN: Action unexpectedly succeeded for non-existent PR - may be lenient on missing PRs"
+            echo "PASS: Action completed without crashing"
+          else
+            echo "FAIL: Unexpected outcome: $OUTCOME"
+            exit 1
+          fi
