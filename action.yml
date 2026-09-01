@@ -1,0 +1,36 @@
+name: 'PR Size Labeler Action'
+description: 'Automatically labels pull requests based on their size, considering lines changed and number of files affected.'
+author: 'cbrgm'
+
+# Define your inputs here.
+inputs:
+  github_token:
+    description: 'GitHub token to authenticate with'
+    required: true
+  github_pr_number:
+    description: 'The number of your pull request'
+    required: true
+  github_repository:
+    description: 'The name of the repository in format owner/repository'
+    required: true
+  config_file_path:
+    description: 'The path to the configuration file'
+    required: false
+  github_enterprise_url:
+    description: 'The base URL for GitHub Enterprise (if applicable)'
+    required: false
+
+runs:
+  using: docker
+  image: 'docker://ghcr.io/cbrgm/pr-size-labeler-action:v1@sha256:bc51f8ade7b3a1d2ab6fe5976f0119ebf3212e5fa5ea3c4d34ec7876057d9f44'
+  env:
+    CONFIG_FILE_PATH: ${{ inputs.config_file_path }}
+    GITHUB_EVENT_NAME: "pull_request"
+    GITHUB_REPOSITORY: ${{ inputs.github_repository }}
+    GITHUB_TOKEN: ${{ inputs.github_token }}
+    PULL_REQUEST_NUMBER: ${{ inputs.github_pr_number }}
+    GITHUB_ENTERPRISE_URL: ${{ inputs.github_enterprise_url }}
+
+branding:
+  icon: bar-chart
+  color: red
