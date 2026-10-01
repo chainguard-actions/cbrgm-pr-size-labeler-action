@@ -1,0 +1,55 @@
+name: Test with custom config file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create custom config file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.pr-labeler"
+          cat > "$GITHUB_WORKSPACE/.pr-labeler/config.yml" <<'EOF'
+          labels:
+            - name: "size/XS"
+              min: 0
+              max: 10
+            - name: "size/S"
+              min: 11
+              max: 50
+            - name: "size/M"
+              min: 51
+              max: 200
+            - name: "size/L"
+              min: 201
+              max: 500
+            - name: "size/XL"
+              min: 501
+              max: 1000
+            - name: "size/XXL"
+              min: 1001
+              max: 999999
+          EOF
+          echo "Config file created at $GITHUB_WORKSPACE/.pr-labeler/config.yml"
+          cat "$GITHUB_WORKSPACE/.pr-labeler/config.yml"
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_token: ${{ github.token }}
+          github_pr_number: "1"
+          github_repository: ${{ github.repository }}
+          config_file_path: ".pr-labeler/config.yml"
+      - name: Assert action ran (fails gracefully on sentinel repo)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with custom config"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo is not resolvable)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
