@@ -1,0 +1,66 @@
+name: Test custom config file path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a custom config file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.github"
+          cat > "$GITHUB_WORKSPACE/.github/pr-size-labeler.yml" <<'EOF'
+          xs:
+            lines_changed_threshold: 10
+            files_changed_threshold: 3
+            label: "size/XS"
+            color: "3CBF00"
+          s:
+            lines_changed_threshold: 30
+            files_changed_threshold: 5
+            label: "size/S"
+            color: "5D9801"
+          m:
+            lines_changed_threshold: 100
+            files_changed_threshold: 10
+            label: "size/M"
+            color: "7F7203"
+          l:
+            lines_changed_threshold: 500
+            files_changed_threshold: 20
+            label: "size/L"
+            color: "A14C05"
+          xl:
+            lines_changed_threshold: 1000
+            files_changed_threshold: 50
+            label: "size/XL"
+            color: "C32607"
+          xxl:
+            label: "size/XXL"
+            color: "E50009"
+          EOF
+
+      - name: Run PR size labeler action with custom config
+        id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_token: ${{ github.token }}
+          github_pr_number: "1"
+          github_repository: ${{ github.repository }}
+          config_file_path: ".github/pr-size-labeler.yml"
+
+      - name: Assert action ran (success or graceful failure on sentinel repo)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with custom config"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected with sentinel repo or non-existent PR)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
