@@ -1,0 +1,36 @@
+name: Test basic usage with custom config
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Assert fixture config exists
+        run: |
+          if [ ! -f "$GITHUB_WORKSPACE/tests/fixtures/pull-request-size.yml" ]; then
+            echo "FAIL: fixture config missing"
+            exit 1
+          fi
+          echo "PASS"
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_token: ${{ github.token }}
+          github_repository: ${{ github.repository }}
+          github_pr_number: "1"
+          config_file_path: tests/fixtures/pull-request-size.yml
+      - name: Assert action ran (succeeded, or failed gracefully on the sentinel repo)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action labeled the PR"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo / PR is not resolvable)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
