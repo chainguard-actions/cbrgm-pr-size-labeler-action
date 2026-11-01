@@ -19,6 +19,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v1.3.8 | [`v1.3.8`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.3.8) | [`6969877`](https://github.com/cbrgm/pr-size-labeler-action/commit/69698776b80b5043c7b1ba1db1ee597ae4d85a55) | [`HARDENING.md`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/blob/v1.3.8/HARDENING.md) |
 | v1.3.9 | [`v1.3.9`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.3.9) | [`488accb`](https://github.com/cbrgm/pr-size-labeler-action/commit/488accb0790ed3f4653aa70c4d46cd3fc0c8f2f9) | [`HARDENING.md`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/blob/v1.3.9/HARDENING.md) |
 | v1.4.0 | [`v1.4.0`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.4.0) | [`503e76d`](https://github.com/cbrgm/pr-size-labeler-action/commit/503e76dd1fa75f044f303a7d1460f5e2f396df01) | [`HARDENING.md`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/blob/v1.4.0/HARDENING.md) |
+| v1.4.1 | [`v1.4.1`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/tree/v1.4.1) | [`371213a`](https://github.com/cbrgm/pr-size-labeler-action/commit/371213a8a3de4b4c8f107ec8adcbb7ca293e970f) | [`HARDENING.md`](https://github.com/chainguard-actions/cbrgm-pr-size-labeler-action/blob/v1.4.1/HARDENING.md) |
 
 ## Privacy
 
